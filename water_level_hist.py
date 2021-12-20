@@ -44,10 +44,8 @@ class WaterlevelDetector:
 
         image = self._loader.read()
         ref_image = image[self._wr0, self._wr1]
-        np.save('im_ref.npy', ref_image)
         image = image[self._r0, self._r1]
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        np.save('acc0.npy', image)
         image = cv2.medianBlur(image, 5)
 
         for i in range(self._buffer_length):
@@ -61,7 +59,6 @@ class WaterlevelDetector:
             accumulated_image += (new_image - image) ** 2
             image = new_image
 
-        np.save('acc.npy', accumulated_image)
         if plot:
             os.system("plotNpy acc.npy acc0.npy im_ref.npy")
         d = accumulated_image.mean()
@@ -85,21 +82,15 @@ class WaterlevelDetector:
 
     def _compute_water_level(self, image, threshold):
         '''using given threshold compute the water level of the image'''
-        print('threshold:', threshold)
         image = (image > threshold).astype(np.uint8)
-        np.save('out1.npy', image)
 
         image = cv2.morphologyEx(image, cv2.MORPH_CLOSE, self._kernel)
         total = image.shape[0] * image.shape[1]
-        print('total', total)
         msum = image.sum()
-        print('msum', msum)
         p = round(msum / total, 2)
-        print('percentage:', p)
         height = image.shape[0] - int(p * image.shape[0])
         for i in range(image.shape[1]):
             image[height][i] = 3
-        np.save('out2.npy', image)
         return height
 
     def get_water_level(self, plot):
@@ -117,7 +108,6 @@ def main(config_path: str, video_identifier: str, show_image=False, plot=False):
     water_level_detector = WaterlevelDetector(config_path, video_identifier)
     idpp = water_level_detector.get_water_level(plot)
     return idpp
-    # print('water level:', water_level)
 
 
 if __name__ == '__main__':
