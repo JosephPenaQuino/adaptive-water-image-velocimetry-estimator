@@ -221,8 +221,6 @@ class OTV():
                         valid[loader.index].append(False)
                         velocity_mem[loader.index].append(0)
 
-            if self._debug >= 1:
-                print('Analyzing frame:', loader.index)
             if previous_frame is not None:
                 pts1 = cv2.KeyPoint_convert(keypoints_current)
                 pts2, st, err = cv2.calcOpticalFlowPyrLK(
@@ -323,8 +321,6 @@ class OTV():
                 time = time[:k]
 
 
-            if self._debug >= 1:
-                print('number of trajectories:', len(keypoints_current))
 
             if show_video:
                 if previous_frame is not None:
@@ -346,18 +342,9 @@ class OTV():
             # the keypoints_predicted will be cleaned
             if len(keypoints_predicted) != 0:
                 keypoints_predicted, keypoints_current = keypoints_current, keypoints_predicted
-        np.save('traj.npy', traj_map)
 
         loader.end()
         cv2.destroyAllWindows()
-        avg, max_, min_, std_dev, count = compute_stats(velocity, show_video)
-
-        if self._debug >= 1:
-            print('avg:', round(avg, 4))
-            print('max:', round(max_, 4))
-            print('min:', round(min_, 4))
-            print('std_dev:', round(std_dev, 2))
-            print('count:', count)
 
         out_json = {}
         for i, sv in enumerate(regions):
